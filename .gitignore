@@ -25,6 +25,10 @@ wheels/
 .venv/
 venv/
 ENV/
+env/
+virtualenv/
+.env/
+.virtualenv/
 
 # --- Tools ---
 .pytest_cache/
