@@ -24,7 +24,11 @@ class FactorDiscoveryEngine:
         x = df[feature_name].to_numpy()
         y = df[self.target_column].to_numpy()
         
-        optb = OptimalBinning(name=feature_name, dtype="numerical")
+        # Detect data type for OptBinning
+        col_type = df[feature_name].dtype
+        dtype = "categorical" if col_type == pl.String else "numerical"
+        
+        optb = OptimalBinning(name=feature_name, dtype=dtype)
         optb.fit(x, y)
         
         binning_table = optb.binning_table

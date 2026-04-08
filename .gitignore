@@ -69,3 +69,7 @@ logs/
 # --- UV ---
 # We usually keep uv.lock in git to ensure deterministic builds.
 .uv_cache/
+
+# --- Reports ---
+reports/*
+!reports/.gitkeep

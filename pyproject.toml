@@ -27,6 +27,7 @@ dependencies = [
 [project.scripts]
 risklens = "main:main"
 discovery-demo = "discovery.demo:run_demo"
+visualize-factors = "explain.visualizer:generate_risk_plots"
 
 [tool.uv]
 package = true
