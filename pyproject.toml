@@ -1,16 +1,19 @@
 [project]
 name = "risklens"
 version = "0.1.0"
-description = "Add your description here"
+description = "Statistical Factor Discovery and Credit Risk Analysis"
 readme = "README.md"
 authors = [
     { name = "Priyansh", email = "priyanshkathayat@gmail.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
+    "duckdb>=1.5.1",
     "interpret>=0.7.8",
     "loguru>=0.7.3",
     "matplotlib>=3.10.8",
+    "mypy>=1.20.0",
+    "optbinning>=0.21.0",
     "polars>=1.39.3",
     "pydantic>=2.12.5",
     "pytest>=9.0.3",
@@ -21,6 +24,12 @@ dependencies = [
     "xgboost>=3.2.0",
 ]
 
-[build-system]
-requires = ["uv_build>=0.8.9,<0.9.0"]
-build-backend = "uv_build"
+[project.scripts]
+risklens = "main:main"
+discovery-demo = "discovery.demo:run_demo"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

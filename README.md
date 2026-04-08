@@ -1,44 +1,59 @@
 # RiskLens
 
-## Statistical Factor Discovery and Credit Risk Analysis
+## Predictive Factor Discovery and Credit Risk Analysis
 
-RiskLens is an advanced analytical framework designed to identify and validate hidden risk factors within complex credit datasets. Unlike standard predictive models that prioritize accuracy at the expense of transparency, RiskLens focuses on exploratory factor discovery, statistical validation, and post-hoc interpretability.
+RiskLens is a high-performance analytical framework designed for identifying, validating, and explaining hidden risk factors in credit datasets. Built for the rigorous demands of the 2026 financial landscape, it prioritizes **factor transparency** and **statistical rigor** over black-box predictive accuracy.
 
-The primary objective is to provide a structured workflow for risk analysts to isolate meaningful drivers of default risk, quantify their impact, and ensure regulatory compliance through explainable machine learning.
+The project provides a structured workflow for risk analysts to isolate meaningful drivers of default risk, quantify their impact, and ensure regulatory compliance through explainable machine learning (XAI).
 
 ---
 
 ## Core Capabilities
 
-- **Factor Discovery**: Identification of latent structures and predictive variables using modern statistical techniques.
-- **Dimensionality Engineering**: Reduction of high-dimensional data into high-signal feature sets through collinearity analysis and information value assessment.
-- **Predictive Validation**: Benchmarking discovered factors against state-of-the-art machine learning algorithms.
-- **Explainable AI (XAI)**: Implementation of global and local explanation layers using SHAP and Explainable Boosting Machines (EBM).
+- **Factor Discovery**: Identifying latent structures using Weight of Evidence (WoE) and Information Value (IV) via `OptBinning`.
+- **High-Performance EDA**: Leveraging `Polars` and `DuckDB` for multi-core, memory-efficient analysis of large-scale credit records.
+- **Explainable AI (XAI)**: Native support for Explainable Boosting Machines (EBM) and SHAP value decomposition.
+- **Modern Orchestration**: Managed entirely by `uv` for deterministic builds and ultra-fast execution.
 
 ---
 
-## Technical Stack (2026 Standards)
+## Technical Stack
 
-The project leverages a modern Python ecosystem optimized for performance and reliability:
-
-- **Environment & Dependency Management**: [uv](https://github.com/astral-sh/uv)
-- **Data Engine**: [Polars](https://pypi.org/project/polars/) (Memory-efficient, multicore execution)
-- **Modeling & XAI**: [InterpretML](https://github.com/interpretml/interpret), [SHAP](https://github.com/slundberg/shap), [XGBoost](https://github.com/dmlc/xgboost)
-- **Code Quality**: [Ruff](https://github.com/astral-sh/ruff) (Linting and Formatting)
-- **Configuration**: Unified `pyproject.toml`
+- **Orchestration**: [uv](https://github.com/astral-sh/uv)
+- **Data Engine**: [Polars](https://pypi.org/project/polars/) (Primary Dataframe engine)
+- **Statistical Analytics**: [OptBinning](https://github.com/guillermo-navas-palencia/optbinning)
+- **Modeling**: [InterpretML](https://github.com/interpretml/interpret), [XGBoost](https://github.com/dmlc/xgboost)
+- **Quality Control**: [Ruff](https://github.com/astral-sh/ruff), [MyPy](https://github.com/python/mypy)
 
 ---
 
-## Getting Started
+## Execution Guide
 
-Ensure you have `uv` installed. To set up the development environment, execute:
-
+### 1. Environment Setup
+Clone the repository and synchronize the environment:
 ```bash
 uv sync
 ```
 
-To run the full factor discovery pipeline:
+### 2. Available Commands
+RiskLens uses simplified command aliases for common tasks:
 
+- **Run Main Pipeline**:
+  ```bash
+  uv run risklens
+  ```
+- **Run Factor Discovery Demo**:
+  ```bash
+  uv run discovery-demo
+  ```
+
+### 3. Development & Quality Assurance
+To maintain 2026 development standards, run linting and type checks:
 ```bash
-uv run python src/main.py
+# Linting and Formatting
+uv run ruff check src
+uv run ruff format src
+
+# Type Integrity
+uvx mypy src
 ```
