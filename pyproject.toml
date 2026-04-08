@@ -14,7 +14,9 @@ dependencies = [
     "matplotlib>=3.10.8",
     "mypy>=1.20.0",
     "optbinning>=0.21.0",
+    "pandas>=3.0.2",
     "polars>=1.39.3",
+    "pyarrow>=23.0.1",
     "pydantic>=2.12.5",
     "pytest>=9.0.3",
     "ruff>=0.15.9",
@@ -28,6 +30,8 @@ dependencies = [
 risklens = "main:main"
 discovery-demo = "discovery.demo:run_demo"
 visualize-factors = "explain.visualizer:generate_risk_plots"
+benchmark-model = "validation.scoring:run_benchmarking"
+explain-model = "explain.shap_analyzer:run_explainability_suite"
 
 [tool.uv]
 package = true

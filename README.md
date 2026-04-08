@@ -2,7 +2,7 @@
 
 ## Predictive Factor Discovery and Credit Risk Analysis
 
-RiskLens is a high-performance analytical framework designed for identifying, validating, and explaining hidden risk factors in credit datasets. Built for the rigorous demands of the 2026 financial landscape, it prioritizes **factor transparency** and **statistical rigor** over black-box predictive accuracy.
+RiskLens is a high-performance analytical framework designed for identifying, validating, and explaining hidden risk factors in credit datasets. Built for the rigorous demands of financial landscape, it prioritizes **factor transparency** and **statistical rigor** over black-box predictive accuracy.
 
 The project provides a structured workflow for risk analysts to isolate meaningful drivers of default risk, quantify their impact, and ensure regulatory compliance through explainable machine learning (XAI).
 
@@ -46,9 +46,21 @@ RiskLens uses simplified command aliases for common tasks:
   ```bash
   uv run discovery-demo
   ```
+- **Generate Visual Risk Reports**:
+  ```bash
+  uv run visualize-factors
+  ```
+- **Run Benchmark Model**:
+  ```bash
+  uv run benchmark-model
+  ```
+- **Generate XAI Explanations**:
+  ```bash
+  uv run explain-model
+  ```
 
 ### 3. Development & Quality Assurance
-To maintain 2026 development standards, run linting and type checks:
+To maintain modern development standards, run linting and type checks:
 ```bash
 # Linting and Formatting
 uv run ruff check src
