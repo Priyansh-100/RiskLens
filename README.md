@@ -1,25 +1,44 @@
 # RiskLens
 
-**Discovering Hidden Risk Factors from Raw Credit Data**
+## Statistical Factor Discovery and Credit Risk Analysis
 
-## Overview
+RiskLens is an advanced analytical framework designed to identify and validate hidden risk factors within complex credit datasets. Unlike standard predictive models that prioritize accuracy at the expense of transparency, RiskLens focuses on exploratory factor discovery, statistical validation, and post-hoc interpretability.
 
-RiskLens is a data-driven credit risk analysis project focused on **discovering hidden risk factors** from high-dimensional, real-world financial data. Instead of blindly training machine learning models on all available features, this project emphasizes **factor discovery, validation, and interpretability** — mirroring real-world risk analyst workflows.
-
-The objective is to identify **which variables truly drive default risk**, reduce noise, and validate discovered factors using predictive modeling and explainability techniques.
+The primary objective is to provide a structured workflow for risk analysts to isolate meaningful drivers of default risk, quantify their impact, and ensure regulatory compliance through explainable machine learning.
 
 ---
 
-## Problem Statement
+## Core Capabilities
 
-Financial institutions often work with large, messy datasets containing hundreds of variables. Not all of them contribute meaningful predictive power.
-
-This project aims to:
-
-* Discover meaningful risk factors from raw data
-* Remove redundant and noisy features
-* Identify latent structures in credit behavior
-* Validate discovered factors using machine learning
-* Explain model decisions using interpretability techniques
+- **Factor Discovery**: Identification of latent structures and predictive variables using modern statistical techniques.
+- **Dimensionality Engineering**: Reduction of high-dimensional data into high-signal feature sets through collinearity analysis and information value assessment.
+- **Predictive Validation**: Benchmarking discovered factors against state-of-the-art machine learning algorithms.
+- **Explainable AI (XAI)**: Implementation of global and local explanation layers using SHAP and Explainable Boosting Machines (EBM).
 
 ---
+
+## Technical Stack (2026 Standards)
+
+The project leverages a modern Python ecosystem optimized for performance and reliability:
+
+- **Environment & Dependency Management**: [uv](https://github.com/astral-sh/uv)
+- **Data Engine**: [Polars](https://pypi.org/project/polars/) (Memory-efficient, multicore execution)
+- **Modeling & XAI**: [InterpretML](https://github.com/interpretml/interpret), [SHAP](https://github.com/slundberg/shap), [XGBoost](https://github.com/dmlc/xgboost)
+- **Code Quality**: [Ruff](https://github.com/astral-sh/ruff) (Linting and Formatting)
+- **Configuration**: Unified `pyproject.toml`
+
+---
+
+## Getting Started
+
+Ensure you have `uv` installed. To set up the development environment, execute:
+
+```bash
+uv sync
+```
+
+To run the full factor discovery pipeline:
+
+```bash
+uv run python src/main.py
+```
