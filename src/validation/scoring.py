@@ -10,7 +10,7 @@ from loguru import logger
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from utils import setup_logging, init_polars
+from utils import setup_logging, init_polars, get_standard_parser, load_and_preprocess
 
 
 def run_benchmarking(data_path: str = "data/raw/credit_risk.csv", top_n: int = 5):
@@ -18,45 +18,33 @@ def run_benchmarking(data_path: str = "data/raw/credit_risk.csv", top_n: int = 5
     setup_logging()
     init_polars()
 
-    logger.info("Initializing RiskLens Benchmarking Sequence.")
+    # 1. Load Data via shared Utility
+    df = load_and_preprocess(data_path)
 
-    # 1. Load Data
-    df = pl.read_csv(data_path)
-    # Map target
-    df = df.with_columns([((pl.col("default") == 2).cast(pl.Int8)).alias("target")])
+    # 2. Select Top Features
+    try:
+        ranking = pl.read_csv("data/processed/factor_ranking.csv")
+        features = ranking["feature"].head(5).to_list()
+    except Exception:
+        features = [col for col in df.columns if col not in ["target", "default"]]
 
-    # 2. Select Features (Hardcoded based on discovery results or could be dynamic)
-    # We use the top discovered factors
-    features = [
-        "checking_balance",
-        "credit_history",
-        "months_loan_duration",
-        "amount",
-        "savings_balance",
-    ]
-
-    X = df.select(features)
+    X = df.select(features).to_pandas()
     y = df["target"].to_numpy()
 
     logger.info(f"Benchmarking with features: {features}")
 
     # 3. Encoding Categorical Features
-    # Convert Polars to Pandas temporarily for easier SKLearn transformation
-    X_pd = X.to_pandas()
-    categorical_cols = X_pd.select_dtypes(include=["object"]).columns
-
+    categorical_cols = X.select_dtypes(include=["object"]).columns
     if len(categorical_cols) > 0:
         logger.info(f"Encoding categorical features: {list(categorical_cols)}")
         encoder = OrdinalEncoder()
-        X_pd[categorical_cols] = encoder.fit_transform(X_pd[categorical_cols])
+        X[categorical_cols] = encoder.fit_transform(X[categorical_cols])
 
-    # 4. Split
+    # 4. Split and Train
     X_train, X_test, y_train, y_test = train_test_split(
-        X_pd, y, test_size=0.25, random_state=42
+        X, y, test_size=0.25, random_state=42
     )
 
-    # 5. Train XGBoost
-    # Using modern XGBoost parameters
     model = xgb.XGBClassifier(
         n_estimators=100,
         max_depth=4,
@@ -64,32 +52,28 @@ def run_benchmarking(data_path: str = "data/raw/credit_risk.csv", top_n: int = 5
         random_state=42,
         eval_metric="logloss",
     )
-
     logger.info("Training XGBoost benchmark model...")
     model.fit(X_train, y_train)
 
-    # 6. Evaluation
+    # 5. Evaluation
     probs = model.predict_proba(X_test)[:, 1]
     preds = model.predict(X_test)
-
     auc = roc_auc_score(y_test, probs)
-    report = classification_report(y_test, preds)
 
     print("\n" + "=" * 50)
     print("RISKLENS BENCHMARKING REPORT")
     print("=" * 50)
-    print("Model: XGBoost Classifier")
-    print(f"Features Used: {len(features)}")
     print(f"ROC-AUC Score: {auc:.4f}")
     print("\nClassification Report:")
-    print(report)
+    print(classification_report(y_test, preds))
     print("=" * 50)
 
-    # 7. Feature Importance
-    importance = model.feature_importances_
-    for f, imp in zip(features, importance):
-        logger.debug(f"XGBoost Importance | {f}: {imp:.4f}")
+
+def main():
+    parser = get_standard_parser("RiskLens: Benchmarking Engine")
+    args = parser.parse_args()
+    run_benchmarking(data_path=args.data)
 
 
 if __name__ == "__main__":
-    run_benchmarking()
+    main()

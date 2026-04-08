@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-import polars as pl
 import xgboost as xgb
 import shap
 import matplotlib
@@ -9,11 +8,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import OrdinalEncoder
 from loguru import logger
+import polars as pl
 
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from utils import setup_logging, init_polars
+from utils import setup_logging, init_polars, get_standard_parser, load_and_preprocess
 
 
 def run_explainability_suite(data_path: str = "data/raw/credit_risk.csv"):
@@ -21,83 +21,63 @@ def run_explainability_suite(data_path: str = "data/raw/credit_risk.csv"):
     setup_logging()
     init_polars()
 
-    logger.info("Initializing RiskLens Explainability Layer.")
+    # 1. Load Data via shared Utility
+    df = load_and_preprocess(data_path)
 
-    # 1. Prepare Data and Model (Using Top 5 factors as validated in Phase 3)
-    df = pl.read_csv(data_path)
-    df = df.with_columns([((pl.col("default") == 2).cast(pl.Int8)).alias("target")])
+    # 2. Dynamic Feature Selection
+    try:
+        ranking = pl.read_csv("data/processed/factor_ranking.csv")
+        features = ranking["feature"].head(5).to_list()
+    except Exception:
+        features = [col for col in df.columns if col not in ["target", "default"]]
 
-    features = [
-        "checking_balance",
-        "credit_history",
-        "months_loan_duration",
-        "amount",
-        "savings_balance",
-    ]
     X = df.select(features).to_pandas()
     y = df["target"].to_numpy()
 
-    # Encoding
+    # 3. Encoding and Modeling
     encoder = OrdinalEncoder()
     X_encoded = encoder.fit_transform(X)
     X_df = pl.DataFrame(X_encoded, schema=features).to_pandas()
 
-    # Train validation model
     model = xgb.XGBClassifier(n_estimators=100, max_depth=4, random_state=42)
     model.fit(X_df, y)
 
-    # 2. SHAP Analysis
-    logger.info("Computing SHAP values (TreeExplainer)...")
+    # 4. SHAP Analysis
+    logger.info("Computing SHAP values...")
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_df)
 
-    # 3. Global Interpretation: Summary Plot
-    logger.info("Generating Global Summary Plot...")
+    # 5. Global Summary Plot
     plt.figure(figsize=(10, 6))
     shap.summary_plot(shap_values, X_df, show=False)
-    plt.title("RiskLens Global Factor Impact (SHAP)", fontsize=14, pad=20)
-
-    summary_path = "reports/figures/shap_summary.png"
-    plt.savefig(summary_path, bbox_inches="tight", dpi=150)
+    plt.title("Global Factor Impact (SHAP)", fontsize=14, pad=20)
+    plt.savefig("reports/figures/shap_summary.png", bbox_inches="tight", dpi=150)
     plt.close()
-    logger.info(f"Global summary saved to {summary_path}")
 
-    # 4. Local Interpretation: Waterfall Plot for a high-risk sample
-    # Find a sample with high probability of default
-    probs = model.predict_proba(X_df)[:, 1]
-    high_risk_idx = probs.argmax()
-
-    logger.info(
-        f"Generating Local Explanation for high-risk sample (Index {high_risk_idx})..."
-    )
-    plt.figure(figsize=(10, 4))
-
-    # In newer SHAP versions, waterfall expects an Explanation object
-    # Or we can use the older force_plot or bar plot logic
-    # For modern, we'll use the Explanation object pattern
+    # 6. Local Waterfall Plot
+    high_risk_idx = model.predict_proba(X_df)[:, 1].argmax()
     exp = shap.Explanation(
         values=shap_values[high_risk_idx],
         base_values=explainer.expected_value,
         data=X_df.iloc[high_risk_idx],
         feature_names=features,
     )
-
     shap.plots.waterfall(exp, show=False)
-    plt.title(
-        f"Local Default Driver Analysis: Sample {high_risk_idx}", fontsize=12, pad=20
+    plt.savefig(
+        "reports/figures/shap_local_high_risk.png", bbox_inches="tight", dpi=150
     )
-
-    local_path = "reports/figures/shap_local_high_risk.png"
-    plt.savefig(local_path, bbox_inches="tight", dpi=150)
     plt.close()
-    logger.info(f"Local explanation saved to {local_path}")
 
     print("\n" + "=" * 50)
-    print("XAI SUITE COMPLETE")
-    print("Reports generated: reports/figures/shap_summary.png")
-    print("Reports generated: reports/figures/shap_local_high_risk.png")
+    print("XAI SUITE COMPLETE: check reports/figures/")
     print("=" * 50)
 
 
+def main():
+    parser = get_standard_parser("RiskLens: XAI Engine")
+    args = parser.parse_args()
+    run_explainability_suite(data_path=args.data)
+
+
 if __name__ == "__main__":
-    run_explainability_suite()
+    main()

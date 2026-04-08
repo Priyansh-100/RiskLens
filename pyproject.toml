@@ -29,9 +29,9 @@ dependencies = [
 [project.scripts]
 risklens = "main:main"
 discovery-demo = "discovery.demo:run_demo"
-visualize-factors = "explain.visualizer:generate_risk_plots"
-benchmark-model = "validation.scoring:run_benchmarking"
-explain-model = "explain.shap_analyzer:run_explainability_suite"
+visualize-factors = "explain.visualizer:main"
+benchmark-model = "validation.scoring:main"
+explain-model = "explain.shap_analyzer:main"
 
 [tool.uv]
 package = true

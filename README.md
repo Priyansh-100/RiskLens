@@ -36,36 +36,35 @@ uv sync
 ```
 
 ### 2. Available Commands
-RiskLens uses simplified command aliases for common tasks:
+RiskLens is now fully dynamic. You can target the internal datasets or pass paths to external files using the `--data` flag.
 
-- **Run Main Pipeline**:
+- **Factor Discovery (Main)**:
   ```bash
-  uv run risklens
+  uv run risklens --data path/to/your_data.csv
   ```
-- **Run Factor Discovery Demo**:
+- **Visual Risk Reports**:
   ```bash
-  uv run discovery-demo
+  uv run visualize-factors --data path/to/your_data.csv
   ```
-- **Generate Visual Risk Reports**:
+- **Benchmark Model**:
   ```bash
-  uv run visualize-factors
+  uv run benchmark-model --data path/to/your_data.csv
   ```
-- **Run Benchmark Model**:
+- **XAI Explanations**:
   ```bash
-  uv run benchmark-model
-  ```
-- **Generate XAI Explanations**:
-  ```bash
-  uv run explain-model
+  uv run explain-model --data path/to/your_data.csv
   ```
 
-### 3. Development & Quality Assurance
-To maintain modern development standards, run linting and type checks:
+### 3. Dataset Compatibility
+The engine automatically detects and maps common credit schemas:
+- **Standard Format**: Detects `default` (1=Good, 2=Bad) and maps to proper binary targets.
+- **Kaggle Format**: Detects `loan_status` (0=Non-Default, 1=Default) and performs auto-renaming.
+- **Universal Mode**: For any other schema, simply ensure your CSV has a `target` or `default` column.
+
+### 4. Development & Quality Assurance
+To maintain technical integrity, we follow a strict DRY (Don't Repeat Yourself) architecture with shared utilities:
 ```bash
-# Linting and Formatting
-uv run ruff check src
-uv run ruff format src
-
-# Type Integrity
-uvx mypy src
+# Quality Checks
+uv run ruff check src --fix
+uvx mypy src --ignore-missing-imports
 ```
